@@ -105,7 +105,7 @@ public class CuratorFrameworkUtils {
             try {
                 curatorFramework.setData().forPath(nodePath, data.getBytes());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("{} set data error: {}", nodePath, e);
             }
         }
     }

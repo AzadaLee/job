@@ -57,6 +57,13 @@ public abstract class BaseSchedule implements ISchedule{
         }
     }
 
+    /**
+     * 往应用实例节点写数据
+     * @param scheduleChildrenNodePathList
+     * @param sortedIdList
+     * @param idCountsList
+     * @param baseNodePath
+     */
     private void writeDataToNode (List<String> scheduleChildrenNodePathList, List<Integer> sortedIdList,
                                    List<Integer> idCountsList, String baseNodePath) {
         int start = 0;
@@ -69,7 +76,8 @@ public abstract class BaseSchedule implements ISchedule{
             List<Integer> dataList = sortedIdList.stream().skip(start).limit(length).collect(Collectors.toList());
             Integer minId = dataList.stream().min(Integer :: compareTo).orElse(0);
             Integer maxId = dataList.stream().max(Integer :: compareTo).orElse(0);
-            curatorFrameworkUtils.setDataToNode(impNodePath, minId +"," +maxId);
+            curatorFrameworkUtils.setDataToNode(impNodePath, minId + CuratorConstant.IDS_JOIN_CHARACTER + maxId);
+            start = length;
         }
     }
     /**
