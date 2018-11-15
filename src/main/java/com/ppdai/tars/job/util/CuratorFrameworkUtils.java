@@ -1,22 +1,21 @@
 package com.ppdai.tars.job.util;
 
 import com.ppdai.tars.job.config.TarsException;
-import jdk.nashorn.internal.runtime.regexp.joni.ast.StringNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @Component
 @Slf4j
 public class CuratorFrameworkUtils {
 
-    @Autowired
+    @Resource
     private CuratorFramework curatorFramework;
 
     public String getNodeData(String path) {
@@ -88,5 +87,26 @@ public class CuratorFrameworkUtils {
             }
         }
         return childrenNode;
+    }
+
+    public void deleteNodePath(String nodePath) throws Exception {
+        isLegalPath(nodePath);
+        curatorFramework.delete().guaranteed().forPath(nodePath);
+    }
+
+    /**
+     * 设置节点的值
+     * @param nodePath
+     * @param data
+     * @throws Exception
+     */
+    public void setDataToNode(String nodePath, String data) {
+        if (isNodeExists(nodePath)) {
+            try {
+                curatorFramework.setData().forPath(nodePath, data.getBytes());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

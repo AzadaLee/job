@@ -8,6 +8,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -21,6 +22,9 @@ public class CuratorClient {
 
     @Autowired
     private CuratorFramework curatorFramework;
+
+    @Value("${server.port}")
+    public String port;
 
     /**
      * start and create lock node
@@ -80,7 +84,7 @@ public class CuratorClient {
             throw new TarsException("servicePath can not be null");
         }
         String ip = IpUtil.getLocalIP();
-        String impPath = servicePath.concat(CuratorConstant.DIRECTORY_CHARACTER).concat(ip);
+        String impPath = servicePath.concat(CuratorConstant.DIRECTORY_CHARACTER).concat(ip).concat(":" + port);
         try {
             Stat stat = curatorFramework.checkExists().forPath(impPath);
             if (null == stat) {
