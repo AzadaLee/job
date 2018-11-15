@@ -1,6 +1,8 @@
 package com.ppdai.tars.job.annotation;
 
 
+import com.ppdai.tars.job.constant.CuratorConstant;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -20,5 +22,5 @@ public @interface CuratorComponent {
      * 业务模块名
      * @return
      */
-    String serviceModule();
+    String serviceModule() default CuratorConstant.NODE_SCHEDULE;
 }

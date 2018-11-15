@@ -1,6 +1,7 @@
 package com.ppdai.tars.job.framework;
 
 import com.ppdai.tars.job.config.TarsException;
+import com.ppdai.tars.job.constant.CuratorConstant;
 import com.ppdai.tars.job.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
@@ -15,15 +16,6 @@ import javax.annotation.PostConstruct;
 @Component
 @Slf4j
 public class CuratorClient {
-
-    /**
-     * 文件夹开始符
-     */
-    private static final String DIRECTORY_CHARACTER = "/";
-    /**
-     * 锁节点
-     */
-    private static final String LOCK_NODE = "LOCK";
 
     private static final byte[] emptyData = null;
 
@@ -49,7 +41,7 @@ public class CuratorClient {
      */
     public void createLockNode() {
         try {
-            String path = DIRECTORY_CHARACTER.concat(LOCK_NODE);
+            String path = CuratorConstant.DIRECTORY_CHARACTER.concat(CuratorConstant.NODE_LOCK);
             Stat stat = curatorFramework.checkExists().forPath(path);
             if (null == stat) {
                 curatorFramework.create().withMode(CreateMode.PERSISTENT).forPath(path, emptyData);//不设置初始值，defaultValue会变成ip
@@ -67,10 +59,11 @@ public class CuratorClient {
             throw new TarsException("serviceModuleName & serviceBeanName can not be null");
         }
         try {
-            String path = DIRECTORY_CHARACTER + serviceModuleName + DIRECTORY_CHARACTER + serviceBeanName;
+            String path = CuratorConstant.DIRECTORY_CHARACTER.concat(serviceModuleName)
+                    .concat(CuratorConstant.DIRECTORY_CHARACTER).concat(serviceBeanName);
             Stat stat = curatorFramework.checkExists().forPath(path);//需要先判断节点是否存在，节点存在时，创建节点会抛NodeExists异常
             if (null == stat) {
-                curatorFramework.create().creatingParentContainersIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path, emptyData);
+                curatorFramework.create().creatingParentContainersIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, emptyData);
             }
             createServiceImpNode(path);
         } catch (Exception e) {
@@ -87,7 +80,7 @@ public class CuratorClient {
             throw new TarsException("servicePath can not be null");
         }
         String ip = IpUtil.getLocalIP();
-        String impPath = servicePath.concat(DIRECTORY_CHARACTER).concat(ip);
+        String impPath = servicePath.concat(CuratorConstant.DIRECTORY_CHARACTER).concat(ip);
         try {
             Stat stat = curatorFramework.checkExists().forPath(impPath);
             if (null == stat) {
