@@ -4,9 +4,10 @@ import com.azada.job.config.TarsException;
 import com.azada.job.schedule.ISchedule;
 import com.azada.job.util.ApplicationContextUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 
 /**
  * 定时任务实例监听
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ScheduleImpNodeListener implements ApplicationListener<ScheduleImpNodeEvent> {
 
-    @Autowired
+    @Resource
     private ApplicationContextUtil applicationContextUtil;
 
     @Override

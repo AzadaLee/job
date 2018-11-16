@@ -3,14 +3,15 @@ package com.azada.job.framework;
 import com.azada.job.annotation.DistributeSchedule;
 import com.azada.job.bean.ScheduleBean;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 
 @Component
 public class DistributeScheduleProcessor implements BeanPostProcessor {
 
-    @Autowired
+    @Resource
     private CuratorClient curatorClient;
 
     @Override

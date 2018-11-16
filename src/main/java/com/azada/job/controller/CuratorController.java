@@ -1,21 +1,22 @@
 package com.azada.job.controller;
 
 import com.azada.job.config.TarsException;
-import com.azada.job.util.CuratorFrameworkUtils;
 import com.azada.job.controller.dto.NodeDataGetByNodePathReqDTO;
 import com.azada.job.controller.dto.ResponseDTO;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.azada.job.util.CuratorFrameworkUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
+
 @RestController
 @RequestMapping("/curator")
 public class CuratorController {
 
-    @Autowired
+    @Resource
     private CuratorFrameworkUtils curatorFrameworkUtils;
 
     @PostMapping("/getNodeDataByNodePath")
