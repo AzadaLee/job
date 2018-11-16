@@ -1,13 +1,20 @@
 package com.azada.job.schedule;
 
+import com.azada.job.annotation.DistributeSchedule;
+import com.azada.job.bean.ScheduleBean;
+import com.azada.job.config.TarsException;
 import com.azada.job.constant.DistributeScheduleConstant;
+import com.azada.job.framework.DistributeScheduleCuratorComponent;
 import com.azada.job.util.CuratorFrameworkUtils;
 import com.azada.job.util.ScheduleUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,43 +25,45 @@ public abstract class BaseSchedule implements ISchedule{
     @Resource
     private CuratorFrameworkUtils curatorFrameworkUtils;
 
-    public void init() {
+    @Resource
+    private DistributeScheduleCuratorComponent distributeScheduleCuratorComponent;
+
+    protected void init() {
+        DistributeSchedule annotation = this.getClass().getAnnotation(DistributeSchedule.class);
+        if (null == annotation) {
+            throw new TarsException("distribute schedule must annotate by @DistributeSchedule");
+        }
+        String serviceModuleName = annotation.value();
         String classFullName = this.getClass().getTypeName();
-        //acquire lock
-        String lockNodePath = DistributeScheduleConstant.DIRECTORY_CHARACTER.concat(DistributeScheduleConstant.NODE_LOCK)
+        Class clazz = this.getClass();
+        ScheduleBean scheduleBean = new ScheduleBean(serviceModuleName, classFullName, clazz);
+        if (!distributeScheduleCuratorComponent.acquireLock(scheduleBean)) {
+            //获取锁失败
+            return;
+        }
+
+        String scheduleNodePathName = DistributeScheduleConstant.DIRECTORY_CHARACTER.concat(scheduleBean.getScheduleServiceName())
                 .concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(classFullName);
+        List<String> subNodes;
         try {
-            acquireLock(lockNodePath);
+            subNodes = curatorFrameworkUtils.getChildrenNode(scheduleNodePathName);
         } catch (Exception e) {
-            log.info("{} acquire lock fail, schedule is doing ", classFullName);
+            log.error("node {} get sub node error :{}", scheduleNodePathName, e);
             return;
         }
-        //acquire imp schedule children node
-        String scheduleNodePath = DistributeScheduleConstant.DIRECTORY_CHARACTER.concat(DistributeScheduleConstant.NODE_SCHEDULE)
-                .concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(classFullName);
-        List<String> scheduleChildrenNodePathList;
-        try {
-            scheduleChildrenNodePathList = curatorFrameworkUtils.getChildrenNode(scheduleNodePath);
-        } catch (Exception e){
-            // release lock
-            deleteNodePath(lockNodePath);
-            return;
-        }
-        if (!CollectionUtils.isEmpty(scheduleChildrenNodePathList)) {
-            List<Integer> idList = this.getIdList();
-            if (CollectionUtils.isEmpty(idList)) {
-                log.info("{} has no data , schedule should not execute", classFullName);
-                deleteNodePath(lockNodePath);
-                return;
+        List<Long> idList = this.getIdList();
+
+        if (CollectionUtils.isEmpty(subNodes) || CollectionUtils.isEmpty(idList)) {
+            log.info("schedule {} there is data to processed or there is no schedule impl. ", classFullName);
+            try {
+                distributeScheduleCuratorComponent.releaseLock(scheduleBean);
+            } catch (Exception e) {
+                log.info("schedule {} release lock error ：{} ", classFullName, e);
             }
-            //sort
-            idList = idList.stream().sorted().collect(Collectors.toList());
-            List<Integer> idCountsList = ScheduleUtil.average(idList.size(), scheduleChildrenNodePathList.size());
-            //write data to node
-            writeDataToNode(scheduleChildrenNodePathList, idList, idCountsList, scheduleNodePath);
-        } else {
-            deleteNodePath(lockNodePath);
+            return;
         }
+        List<Integer> idCountsList = ScheduleUtil.average(idList.size(), subNodes.size());
+        writeDataToNode(subNodes, idList, idCountsList, scheduleNodePathName);
     }
 
     /**
@@ -62,54 +71,42 @@ public abstract class BaseSchedule implements ISchedule{
      * @param scheduleChildrenNodePathList
      * @param sortedIdList
      * @param idCountsList
-     * @param baseNodePath
+     * @param scheduleNodePathName
      */
-    private void writeDataToNode (List<String> scheduleChildrenNodePathList, List<Integer> sortedIdList,
-                                   List<Integer> idCountsList, String baseNodePath) {
+    private void writeDataToNode(List<String> scheduleChildrenNodePathList, List<Long> sortedIdList,
+                                   List<Integer> idCountsList, String scheduleNodePathName) {
         int start = 0;
         int length;
         String impNodePath;
         for (int i = 0; i < scheduleChildrenNodePathList.size(); i++) {
             String impName = scheduleChildrenNodePathList.get(i);
             length = idCountsList.get(i);
-            impNodePath = baseNodePath.concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(impName);
-            List<Integer> dataList = sortedIdList.stream().skip(start).limit(length).collect(Collectors.toList());
-            Integer minId = dataList.stream().min(Integer :: compareTo).orElse(0);
-            Integer maxId = dataList.stream().max(Integer :: compareTo).orElse(0);
+            impNodePath = scheduleNodePathName.concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(impName);
+            List<Long> dataList = sortedIdList.stream().skip(start).limit(length).collect(Collectors.toList());
+            Long minId = dataList.stream().min(Long :: compareTo).orElse(0L);
+            Long maxId = dataList.stream().max(Long :: compareTo).orElse(0L);
             curatorFrameworkUtils.setDataToNode(impNodePath, minId + DistributeScheduleConstant.IDS_JOIN_CHARACTER + maxId);
             start = length;
         }
     }
-    /**
-     * acquire lock
-     * if there is no exception that acquire lock success
-     * @param nodePath
-     * @throws Exception
-     */
-    private void acquireLock(String nodePath) throws Exception {
-        curatorFrameworkUtils.createNodeWithOutCheckExists(nodePath);
-    }
 
-    /**
-     * delete node path guaranteed
-     * @param nodePath
-     */
-    private void deleteNodePath(String nodePath) {
-        try {
-            if (!curatorFrameworkUtils.isNodeExists(nodePath)) {
-                curatorFrameworkUtils.deleteNodePath(nodePath);
-            }
-        } catch (Exception e) {
-            log.error("release {} lock error :{}", nodePath, e);
+    public void doBusiness(@NotNull String ids) {
+        if (StringUtils.isEmpty(ids) || ids.indexOf(DistributeScheduleConstant.IDS_JOIN_CHARACTER) < 0) {
+            log.info("schedule {} ids：{} is null or is not a legal ids data. ", this.getClass().getTypeName(), ids);
+            return;
         }
-    }
-
-    /**
-     *
-     * @param lockNodePath
-     * @param serviceNodePath
-     */
-    private void tryReleaseLock(String lockNodePath, String serviceNodePath) {
-
+        List<String> idArr = Arrays.asList(ids.split(DistributeScheduleConstant.IDS_JOIN_CHARACTER));
+        if (idArr.size() != 2) {
+            log.info("schedule {} ids：{} is not a legal ids data. ", this.getClass().getTypeName(), ids);
+            return;
+        }
+        Long minId = Long.valueOf(idArr.get(0));
+        Long maxId = Long.valueOf(idArr.get(1));
+        try {
+            this.prosess(minId, maxId);
+        } finally {
+            //TODO
+            distributeScheduleCuratorComponent.emptyCurrentNodeScheduleImplData();
+        }
     }
 }

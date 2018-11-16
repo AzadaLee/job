@@ -6,6 +6,7 @@ import com.azada.job.constant.DistributeScheduleConstant;
 import com.azada.job.listener.ScheduleImpNodeData;
 import com.azada.job.listener.ScheduleImpNodeEvent;
 import com.azada.job.listener.ScheduleImpNodePublisher;
+import com.azada.job.util.CuratorFrameworkUtils;
 import com.azada.job.util.NodePathUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
@@ -31,6 +32,9 @@ public class CuratorClient {
 
     @Resource
     private CuratorFramework curatorFramework;
+
+    @Resource
+    private CuratorFrameworkUtils curatorFrameworkUtils;
 
     @Resource
     private ScheduleImpNodePublisher scheduleImpNodePublisher;

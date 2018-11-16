@@ -18,15 +18,11 @@ public class CuratorFrameworkUtils {
     @Resource
     private CuratorFramework curatorFramework;
 
-    public String getNodeData(String path) {
-        String data = "";
-        try {
-            byte[] byteData = curatorFramework.getData().forPath(path);
-            if (null != byteData) {
-                data = new String(byteData);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public String getNodeData(String path) throws Exception {
+        String data = null;
+        byte[] byteData = curatorFramework.getData().forPath(path);
+        if (null != byteData) {
+            data = new String(byteData);
         }
         return data;
     }
@@ -37,19 +33,14 @@ public class CuratorFrameworkUtils {
      * @return
      * true : 存在 ； false : 不存在
      */
-    public boolean isNodeExists(String nodePath) {
-        boolean flag = false;
+    public boolean isNodeExists(String nodePath) throws Exception {
+        boolean exists = false;
         isLegalPath(nodePath);
-        try {
-            Stat stat = curatorFramework.checkExists().forPath(nodePath);
-            if (null != stat) {
-                flag = true;
-            }
-        } catch (Exception e) {
-            log.error("check node path is exists error :{}",e);
-            throw new TarsException("check node path is exists error");
+        Stat stat = curatorFramework.checkExists().forPath(nodePath);
+        if (null != stat) {
+            exists = true;
         }
-        return flag;
+        return exists;
     }
 
     /**
@@ -63,11 +54,21 @@ public class CuratorFrameworkUtils {
     }
 
     /**
-     * 在不检查节点路劲是否存在的情况下创建临时节点
+     * 在不检查节点路劲是否存在的情况下创建节点
      * @param nodePath
      * @throws Exception
      */
     public void createNodeWithOutCheckExists(String nodePath) throws Exception {
+        isLegalPath(nodePath);
+        curatorFramework.create().creatingParentContainersIfNeeded().forPath(nodePath);
+    }
+
+    /**
+     * 在不检查节点路劲是否存在的情况下创建临时节点
+     * @param nodePath
+     * @throws Exception
+     */
+    public void createEphemeraLNodeWithOutCheckExists(String nodePath) throws Exception {
         isLegalPath(nodePath);
         curatorFramework.create().creatingParentContainersIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(nodePath);
     }
@@ -77,13 +78,14 @@ public class CuratorFrameworkUtils {
      * @param parentNodePath
      * @return
      */
-    public List<String> getChildrenNode(String parentNodePath) {
+    public List<String> getChildrenNode(String parentNodePath) throws Exception {
         List<String> childrenNode = null;
         if (isNodeExists(parentNodePath)) {
             try {
                 childrenNode = curatorFramework.getChildren().forPath(parentNodePath);
             } catch (Exception e) {
                 log.error("get children node error :{}", e);
+                throw e;
             }
         }
         return childrenNode;
@@ -95,18 +97,30 @@ public class CuratorFrameworkUtils {
     }
 
     /**
-     * 设置节点的值
      * @param nodePath
      * @param data
-     * @throws Exception
+     * @return true：表示设置值成功；false：表示设置值失败
      */
-    public void setDataToNode(String nodePath, String data) {
-        if (isNodeExists(nodePath)) {
+    public boolean setDataToNode(String nodePath, String data) {
+        //节点下是否可以设置值，true可以设置值，false不可以设置值
+        boolean setDataAbleFlag = false;
+        try {
+            //isNodeExists 返回true代表目录存在，可以设置值，返回false代表目录不存在，不能设置
+            setDataAbleFlag = isNodeExists(nodePath);
+        } catch (Exception e) {
+            //发生异常，默认不能设置值
+            log.error("{} check node is exists error :{}", nodePath, e);
+            return false;
+        }
+        if (setDataAbleFlag) {
             try {
                 curatorFramework.setData().forPath(nodePath, data.getBytes());
+                return true;
             } catch (Exception e) {
                 log.error("{} set data error: {}", nodePath, e);
+                return false;
             }
         }
+        return false;
     }
 }

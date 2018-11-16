@@ -14,12 +14,18 @@ public interface ISchedule {
      * 获取待处理数据的id集合
      * @return
      */
-    List<Integer> getIdList();
+    List<Long> getIdList();
 
     /**
      * 执行具体业务
+     * @param
+     */
+    void prosess(Long minId, Long maxId);
+
+    /**
+     * 由基础类重写
      * @param ids
      */
-    void prosess(@NotNull String ids);
+    void doBusiness(@NotNull String ids);
 
 }

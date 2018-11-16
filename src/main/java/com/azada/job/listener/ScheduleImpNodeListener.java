@@ -30,6 +30,7 @@ public class ScheduleImpNodeListener implements ApplicationListener<ScheduleImpN
         }
         String nodeData = event.getScheduleImpNodeData().getNodeData();
         ISchedule schedule = (ISchedule) o;
-        schedule.prosess(nodeData);
+
+        schedule.doBusiness(nodeData);
     }
 }
