@@ -25,7 +25,7 @@ public class TestSchedule extends BaseSchedule {
 
     @Override
     public void prosess(String ids) {
-
+        System.out.println("success");
     }
 
 }

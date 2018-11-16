@@ -1,6 +1,7 @@
 package com.azada.job.framework;
 
 import com.azada.job.annotation.DistributeSchedule;
+import com.azada.job.bean.ScheduleBean;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -23,7 +24,9 @@ public class DistributeScheduleProcessor implements BeanPostProcessor {
         if (null != annotation) {
             String serviceModuleName = annotation.value();
             String classFullName = bean.getClass().getTypeName();
-            curatorClient.createServiceNode(serviceModuleName, classFullName);
+            Class clazz = bean.getClass();
+            ScheduleBean scheduleBean = new ScheduleBean(serviceModuleName, classFullName, clazz);
+            curatorClient.createScheduleServiceNode(scheduleBean);
         }
         return bean;
     }
