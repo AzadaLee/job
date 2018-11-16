@@ -1,4 +1,4 @@
-package com.ppdai.tars.job.controller.dto;
+package com.azada.job.controller.dto;
 
 import lombok.Data;
 

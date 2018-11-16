@@ -1,4 +1,4 @@
-package com.ppdai.tars.job;
+package com.azada.job;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

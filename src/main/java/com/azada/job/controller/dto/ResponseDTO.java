@@ -1,6 +1,6 @@
-package com.ppdai.tars.job.controller.dto;
+package com.azada.job.controller.dto;
 
-import com.ppdai.tars.job.constant.ResponseEnum;
+import com.azada.job.constant.ResponseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

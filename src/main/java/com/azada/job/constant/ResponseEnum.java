@@ -1,4 +1,4 @@
-package com.ppdai.tars.job.constant;
+package com.azada.job.constant;
 
 import lombok.Getter;
 

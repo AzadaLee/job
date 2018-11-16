@@ -1,14 +1,12 @@
-package com.ppdai.tars.job.schedule;
+package com.azada.job.schedule;
 
-import com.ppdai.tars.job.annotation.CuratorComponent;
+import com.azada.job.annotation.DistributeSchedule;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
 
-@Component
-@CuratorComponent
+@DistributeSchedule
 public class TestSchedule extends BaseSchedule {
 
 

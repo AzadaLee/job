@@ -1,4 +1,4 @@
-package com.ppdai.tars.job.util;
+package com.azada.job.util;
 
 import java.util.ArrayList;
 import java.util.List;

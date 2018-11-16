@@ -1,8 +1,8 @@
-package com.ppdai.tars.job.schedule;
+package com.azada.job.schedule;
 
-import com.ppdai.tars.job.constant.CuratorConstant;
-import com.ppdai.tars.job.util.CuratorFrameworkUtils;
-import com.ppdai.tars.job.util.ScheduleUtil;
+import com.azada.job.constant.DistributeScheduleConstant;
+import com.azada.job.util.CuratorFrameworkUtils;
+import com.azada.job.util.ScheduleUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -21,8 +21,8 @@ public abstract class BaseSchedule implements ISchedule{
     public void init() {
         String classFullName = this.getClass().getTypeName();
         //acquire lock
-        String lockNodePath = CuratorConstant.DIRECTORY_CHARACTER.concat(CuratorConstant.NODE_LOCK)
-                .concat(CuratorConstant.DIRECTORY_CHARACTER).concat(classFullName);
+        String lockNodePath = DistributeScheduleConstant.DIRECTORY_CHARACTER.concat(DistributeScheduleConstant.NODE_LOCK)
+                .concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(classFullName);
         try {
             acquireLock(lockNodePath);
         } catch (Exception e) {
@@ -30,8 +30,8 @@ public abstract class BaseSchedule implements ISchedule{
             return;
         }
         //acquire imp schedule children node
-        String scheduleNodePath = CuratorConstant.DIRECTORY_CHARACTER.concat(CuratorConstant.NODE_SCHEDULE)
-                .concat(CuratorConstant.DIRECTORY_CHARACTER).concat(classFullName);
+        String scheduleNodePath = DistributeScheduleConstant.DIRECTORY_CHARACTER.concat(DistributeScheduleConstant.NODE_SCHEDULE)
+                .concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(classFullName);
         List<String> scheduleChildrenNodePathList;
         try {
             scheduleChildrenNodePathList = curatorFrameworkUtils.getChildrenNode(scheduleNodePath);
@@ -72,11 +72,11 @@ public abstract class BaseSchedule implements ISchedule{
         for (int i = 0; i < scheduleChildrenNodePathList.size(); i++) {
             String impName = scheduleChildrenNodePathList.get(i);
             length = idCountsList.get(i);
-            impNodePath = baseNodePath.concat(CuratorConstant.DIRECTORY_CHARACTER).concat(impName);
+            impNodePath = baseNodePath.concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(impName);
             List<Integer> dataList = sortedIdList.stream().skip(start).limit(length).collect(Collectors.toList());
             Integer minId = dataList.stream().min(Integer :: compareTo).orElse(0);
             Integer maxId = dataList.stream().max(Integer :: compareTo).orElse(0);
-            curatorFrameworkUtils.setDataToNode(impNodePath, minId + CuratorConstant.IDS_JOIN_CHARACTER + maxId);
+            curatorFrameworkUtils.setDataToNode(impNodePath, minId + DistributeScheduleConstant.IDS_JOIN_CHARACTER + maxId);
             start = length;
         }
     }

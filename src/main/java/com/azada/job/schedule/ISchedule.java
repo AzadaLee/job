@@ -1,4 +1,4 @@
-package com.ppdai.tars.job.schedule;
+package com.azada.job.schedule;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;

@@ -1,13 +1,13 @@
-package com.ppdai.tars.job.framework;
+package com.azada.job.framework;
 
-import com.ppdai.tars.job.annotation.CuratorComponent;
+import com.azada.job.annotation.DistributeSchedule;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CuratorClassProcessor implements BeanPostProcessor {
+public class DistributeScheduleProcessor implements BeanPostProcessor {
 
     @Autowired
     private CuratorClient curatorClient;
@@ -19,9 +19,9 @@ public class CuratorClassProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        CuratorComponent annotation = bean.getClass().getAnnotation(CuratorComponent.class);
+        DistributeSchedule annotation = bean.getClass().getAnnotation(DistributeSchedule.class);
         if (null != annotation) {
-            String serviceModuleName = annotation.serviceModule();
+            String serviceModuleName = annotation.value();
             String classFullName = bean.getClass().getTypeName();
             curatorClient.createServiceNode(serviceModuleName, classFullName);
         }

@@ -1,9 +1,9 @@
-package com.ppdai.tars.job.controller;
+package com.azada.job.controller;
 
-import com.ppdai.tars.job.config.TarsException;
-import com.ppdai.tars.job.controller.dto.NodeDataGetByNodePathReqDTO;
-import com.ppdai.tars.job.controller.dto.ResponseDTO;
-import com.ppdai.tars.job.util.CuratorFrameworkUtils;
+import com.azada.job.config.TarsException;
+import com.azada.job.util.CuratorFrameworkUtils;
+import com.azada.job.controller.dto.NodeDataGetByNodePathReqDTO;
+import com.azada.job.controller.dto.ResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,5 +28,16 @@ public class CuratorController {
             throw new TarsException("节点路劲必须以'/'开头");
         }
         return ResponseDTO.success(curatorFrameworkUtils.getNodeData(nodePath));
+    }
+
+    @PostMapping("/deleteNodePath")
+    public ResponseDTO deleteNodePath (@RequestBody NodeDataGetByNodePathReqDTO req) {
+        String nodePath = req.getNodePath();
+        try {
+            curatorFrameworkUtils.deleteNodePath(nodePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResponseDTO.success();
     }
 }

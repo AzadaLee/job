@@ -1,6 +1,6 @@
-package com.ppdai.tars.job.constant;
+package com.azada.job.constant;
 
-public class CuratorConstant {
+public class DistributeScheduleConstant {
 
     /**
      * zookeeper lock node

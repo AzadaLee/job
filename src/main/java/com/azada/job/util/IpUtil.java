@@ -1,4 +1,4 @@
-package com.ppdai.tars.job.util;
+package com.azada.job.util;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;

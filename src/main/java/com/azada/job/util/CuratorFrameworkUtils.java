@@ -1,6 +1,6 @@
-package com.ppdai.tars.job.util;
+package com.azada.job.util;
 
-import com.ppdai.tars.job.config.TarsException;
+import com.azada.job.config.TarsException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;

@@ -1,6 +1,6 @@
-package com.ppdai.tars.job.config;
+package com.azada.job.config;
 
-import com.ppdai.tars.job.constant.ResponseEnum;
+import com.azada.job.constant.ResponseEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
