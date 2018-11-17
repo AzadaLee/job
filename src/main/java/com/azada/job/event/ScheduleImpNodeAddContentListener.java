@@ -1,7 +1,7 @@
 package com.azada.job.event;
 
 import com.azada.job.config.TarsException;
-import com.azada.job.schedule.ISchedule;
+import com.azada.job.schedule.IDistributeSchedule;
 import com.azada.job.util.ApplicationContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
@@ -29,8 +29,7 @@ public class ScheduleImpNodeAddContentListener implements ApplicationListener<Sc
             throw new TarsException("");
         }
         String nodeData = event.getScheduleImpNodeData().getNodeData();
-        ISchedule schedule = (ISchedule) o;
-
-        schedule.doBusiness(nodeData);
+        IDistributeSchedule schedule = (IDistributeSchedule) o;
+        schedule.process(nodeData);
     }
 }

@@ -18,9 +18,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @author azada
+ */
 @Component
 @Slf4j
-public abstract class BaseSchedule implements ISchedule{
+public abstract class BaseDistributeSchedule implements IDistributeSchedule{
 
     @Resource
     private CuratorFrameworkUtils curatorFrameworkUtils;
@@ -90,7 +93,7 @@ public abstract class BaseSchedule implements ISchedule{
         }
     }
 
-    public void doBusiness(@NotNull String ids) {
+    public void process(@NotNull String ids) {
         if (StringUtils.isEmpty(ids) || ids.indexOf(DistributeScheduleConstant.IDS_JOIN_CHARACTER) < 0) {
             log.info("schedule {} ids：{} is null or is not a legal ids data. ", this.getClass().getTypeName(), ids);
             return;
@@ -103,7 +106,7 @@ public abstract class BaseSchedule implements ISchedule{
         Long minId = Long.valueOf(idArr.get(0));
         Long maxId = Long.valueOf(idArr.get(1));
         try {
-            this.prosess(minId, maxId);
+            this.doBusiness(minId, maxId);
         } finally {
             //TODO
             distributeScheduleCuratorComponent.emptyCurrentNodeScheduleImplData();

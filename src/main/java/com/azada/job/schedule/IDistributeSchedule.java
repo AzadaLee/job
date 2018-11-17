@@ -3,7 +3,7 @@ package com.azada.job.schedule;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-public interface ISchedule {
+public interface IDistributeSchedule {
 
     /**
      * 开始任务
@@ -20,12 +20,12 @@ public interface ISchedule {
      * 执行具体业务
      * @param
      */
-    void prosess(Long minId, Long maxId);
+    void doBusiness(Long minId, Long maxId);
 
     /**
      * 由基础类重写
      * @param ids
      */
-    void doBusiness(@NotNull String ids);
+    void process(@NotNull String ids);
 
 }

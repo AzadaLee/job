@@ -1,13 +1,15 @@
 package com.azada.job.schedule;
 
 import com.azada.job.annotation.DistributeSchedule;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.Arrays;
 import java.util.List;
 
 @DistributeSchedule
-public class TestSchedule extends BaseSchedule {
+@Slf4j
+public class TestSchedule extends BaseDistributeSchedule {
 
 
     @Override
@@ -24,8 +26,9 @@ public class TestSchedule extends BaseSchedule {
     }
 
     @Override
-    public void prosess(String ids) {
-        System.out.println("success");
+    public void doBusiness(Long minId, Long maxId) {
+        log.info("minId:{}, maxId:{}", minId, maxId);
+
     }
 
 }
