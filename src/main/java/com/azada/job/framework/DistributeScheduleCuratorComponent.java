@@ -3,7 +3,11 @@ package com.azada.job.framework;
 import com.azada.job.bean.ScheduleBean;
 import com.azada.job.constant.DistributeScheduleConstant;
 import com.azada.job.util.CuratorFrameworkUtils;
+import com.azada.job.util.NodePathUtil;
+import com.azada.job.util.ScheduleUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.zookeeper.KeeperException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -103,15 +107,61 @@ public class DistributeScheduleCuratorComponent {
     /**
      * 释放锁
      * @param scheduleBean
-     * @throws Exception
      */
-    public void releaseLock(ScheduleBean scheduleBean) throws Exception {
+    @Async
+    public void releaseLockGuaranteed(ScheduleBean scheduleBean) {
         String scheduleLockNodePathName = DistributeScheduleConstant.DIRECTORY_CHARACTER.concat(DistributeScheduleConstant.NODE_LOCK)
                 .concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(scheduleBean.getClassFullName());
-        curatorFrameworkUtils.deleteNodePath(scheduleLockNodePathName);
+        while (true) {
+            try {
+                curatorFrameworkUtils.deleteNodePath(scheduleLockNodePathName);
+                break;
+            } catch (Exception e) {
+                if (e instanceof KeeperException.NoNodeException) {
+                    break;
+                }
+            }
+        }
     }
 
-    public void emptyCurrentNodeScheduleImplData() {
+    /**
+     * 异步（应用如果开启支持异步）并且在结点存在的情况下，一定清空当前任务结点内容
+     * @param scheduleBean
+     */
+    @Async
+    public void emptyCurrentScheduleImplNodeContentGuaranteed(ScheduleBean scheduleBean) {
+        String scheduleImplNodePathName = ScheduleUtil.generateServiceImplNodePathName(scheduleBean);
+        while (true) {
+            try {
+                curatorFrameworkUtils.emptyNodeContent(scheduleImplNodePathName);
+                break;
+            } catch (Exception e) {
+                if (e instanceof KeeperException.NoNodeException) {
+                    break;
+                }
+            }
 
+        }
+    }
+
+    /**
+     * 异步（应用如果开启支持异步）并且在结点存在的情况下，一定将数据写到结点内容中去
+     * @param scheduleBean
+     * @param data
+     */
+    @Async
+    public void writeData2CurrentScheduleImplNodeGuaranteed(ScheduleBean scheduleBean, String data) {
+        String scheduleImplNodePathName = ScheduleUtil.generateServiceImplNodePathName(scheduleBean);
+        while (true) {
+            try {
+                curatorFrameworkUtils.setDataToNode(scheduleImplNodePathName,data.getBytes());
+                break;
+            } catch (Exception e) {
+                if (e instanceof KeeperException.NoNodeException) {
+                    break;
+                }
+            }
+
+        }
     }
 }

@@ -1,9 +1,34 @@
 package com.azada.job.util;
 
+import com.azada.job.bean.ScheduleBean;
+import com.azada.job.constant.DistributeScheduleConstant;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class ScheduleUtil {
+
+
+    /**
+     * @param scheduleBean
+     * @return
+     */
+    public static String generateServiceNodePathName (ScheduleBean scheduleBean) {
+        String scheduleServicePath = DistributeScheduleConstant.DIRECTORY_CHARACTER.concat(scheduleBean.getScheduleServiceName())
+                .concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(scheduleBean.getClassFullName());
+        return scheduleServicePath;
+    }
+
+    /**
+     * 生成serviceSchedule实例节点路劲名
+     * @param scheduleBean
+     * @return
+     */
+    public static String generateServiceImplNodePathName (ScheduleBean scheduleBean) {
+        String scheduleServicePath = generateServiceNodePathName(scheduleBean);
+        String ip = IpUtil.LOCAL_IP;
+        return scheduleServicePath.concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(ip);
+    }
 
     /**
      * 分片

@@ -20,7 +20,7 @@ public class CuratorController {
     private CuratorFrameworkUtils curatorFrameworkUtils;
 
     @PostMapping("/getNodeDataByNodePath")
-    public ResponseDTO getNodeDataByNodePath(@RequestBody NodeDataGetByNodePathReqDTO req) {
+    public ResponseDTO getNodeDataByNodePath(@RequestBody NodeDataGetByNodePathReqDTO req) throws Exception {
         String nodePath = req.getNodePath();
         if (StringUtils.isEmpty(nodePath)) {
             throw new TarsException("节点路劲不能为空");

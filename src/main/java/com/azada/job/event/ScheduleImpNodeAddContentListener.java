@@ -23,12 +23,12 @@ public class ScheduleImpNodeAddContentListener implements ApplicationListener<Sc
 
     @Override
     public void onApplicationEvent(ScheduleImpNodeAddContentEvent event) {
-        Object o = applicationContextUtil.getBeanByClazz(event.getScheduleImpNodeData().getClazz());
+        Object o = applicationContextUtil.getBeanByClazz(event.getScheduleBean().getClazz());
         if (null == o) {
-            log.error("{} bean is not found", event.getScheduleImpNodeData().getClassFullName());
+            log.error("{} bean is not found", event.getScheduleBean().getClassFullName());
             throw new TarsException("");
         }
-        String nodeData = event.getScheduleImpNodeData().getNodeData();
+        String nodeData = event.getScheduleBean().getNodeData();
         IDistributeSchedule schedule = (IDistributeSchedule) o;
         schedule.process(nodeData);
     }

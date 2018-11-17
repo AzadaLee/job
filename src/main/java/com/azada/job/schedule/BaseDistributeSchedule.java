@@ -6,6 +6,8 @@ import com.azada.job.config.TarsException;
 import com.azada.job.constant.DistributeScheduleConstant;
 import com.azada.job.framework.DistributeScheduleCuratorComponent;
 import com.azada.job.util.CuratorFrameworkUtils;
+import com.azada.job.util.IpUtil;
+import com.azada.job.util.NodePathUtil;
 import com.azada.job.util.ScheduleUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -39,7 +41,7 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
         String serviceModuleName = annotation.value();
         String classFullName = this.getClass().getTypeName();
         Class clazz = this.getClass();
-        ScheduleBean scheduleBean = new ScheduleBean(serviceModuleName, classFullName, clazz);
+        ScheduleBean scheduleBean = new ScheduleBean(serviceModuleName, classFullName, clazz, null);
         if (!distributeScheduleCuratorComponent.acquireLock(scheduleBean)) {
             //获取锁失败
             return;
@@ -59,14 +61,14 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
         if (CollectionUtils.isEmpty(subNodes) || CollectionUtils.isEmpty(idList)) {
             log.info("schedule {} there is data to processed or there is no schedule impl. ", classFullName);
             try {
-                distributeScheduleCuratorComponent.releaseLock(scheduleBean);
+                distributeScheduleCuratorComponent.releaseLockGuaranteed(scheduleBean);
             } catch (Exception e) {
                 log.info("schedule {} release lock error ：{} ", classFullName, e);
             }
             return;
         }
         List<Integer> idCountsList = ScheduleUtil.average(idList.size(), subNodes.size());
-        writeDataToNode(subNodes, idList, idCountsList, scheduleNodePathName);
+        writeDataToNode(subNodes, idList, idCountsList, scheduleBean);
     }
 
     /**
@@ -74,21 +76,20 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
      * @param scheduleChildrenNodePathList
      * @param sortedIdList
      * @param idCountsList
-     * @param scheduleNodePathName
+     * @param scheduleBean
      */
     private void writeDataToNode(List<String> scheduleChildrenNodePathList, List<Long> sortedIdList,
-                                   List<Integer> idCountsList, String scheduleNodePathName) {
+                                   List<Integer> idCountsList, ScheduleBean scheduleBean) {
         int start = 0;
         int length;
         String impNodePath;
         for (int i = 0; i < scheduleChildrenNodePathList.size(); i++) {
             String impName = scheduleChildrenNodePathList.get(i);
             length = idCountsList.get(i);
-            impNodePath = scheduleNodePathName.concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(impName);
             List<Long> dataList = sortedIdList.stream().skip(start).limit(length).collect(Collectors.toList());
             Long minId = dataList.stream().min(Long :: compareTo).orElse(0L);
             Long maxId = dataList.stream().max(Long :: compareTo).orElse(0L);
-            curatorFrameworkUtils.setDataToNode(impNodePath, minId + DistributeScheduleConstant.IDS_JOIN_CHARACTER + maxId);
+            distributeScheduleCuratorComponent.writeData2CurrentScheduleImplNodeGuaranteed(scheduleBean, minId + DistributeScheduleConstant.IDS_JOIN_CHARACTER + maxId);
             start = length;
         }
     }
@@ -108,8 +109,12 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
         try {
             this.doBusiness(minId, maxId);
         } finally {
-            //TODO
-            distributeScheduleCuratorComponent.emptyCurrentNodeScheduleImplData();
+            DistributeSchedule annotation = this.getClass().getAnnotation(DistributeSchedule.class);
+            String serviceModuleName = annotation.value();
+            String classFullName = this.getClass().getTypeName();
+            Class clazz = this.getClass();
+            ScheduleBean scheduleBean = new ScheduleBean(serviceModuleName, classFullName, clazz, null);
+            distributeScheduleCuratorComponent.emptyCurrentScheduleImplNodeContentGuaranteed(scheduleBean);
         }
     }
 }

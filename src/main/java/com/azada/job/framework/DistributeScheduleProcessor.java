@@ -27,7 +27,7 @@ public class DistributeScheduleProcessor implements BeanPostProcessor {
             String serviceModuleName = annotation.value();
             String classFullName = bean.getClass().getTypeName();
             Class clazz = bean.getClass();
-            ScheduleBean scheduleBean = new ScheduleBean(serviceModuleName, classFullName, clazz);
+            ScheduleBean scheduleBean = new ScheduleBean(serviceModuleName, classFullName, clazz, null);
             try {
                 curatorClient.createScheduleServiceNode(scheduleBean);
             } catch (Exception e) {

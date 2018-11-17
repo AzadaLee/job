@@ -1,6 +1,7 @@
 package com.azada.job.util;
 
 import com.azada.job.config.TarsException;
+import com.azada.job.constant.DistributeScheduleConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
@@ -81,12 +82,7 @@ public class CuratorFrameworkUtils {
     public List<String> getChildrenNode(String parentNodePath) throws Exception {
         List<String> childrenNode = null;
         if (isNodeExists(parentNodePath)) {
-            try {
-                childrenNode = curatorFramework.getChildren().forPath(parentNodePath);
-            } catch (Exception e) {
-                log.error("get children node error :{}", e);
-                throw e;
-            }
+            childrenNode = curatorFramework.getChildren().forPath(parentNodePath);
         }
         return childrenNode;
     }
@@ -103,7 +99,7 @@ public class CuratorFrameworkUtils {
      */
     public boolean setDataToNode(String nodePath, String data) {
         //节点下是否可以设置值，true可以设置值，false不可以设置值
-        boolean setDataAbleFlag = false;
+        boolean setDataAbleFlag;
         try {
             //isNodeExists 返回true代表目录存在，可以设置值，返回false代表目录不存在，不能设置
             setDataAbleFlag = isNodeExists(nodePath);
@@ -122,5 +118,23 @@ public class CuratorFrameworkUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * 清空结点内容
+     * @param nodePath
+     */
+    public void emptyNodeContent(String nodePath) throws Exception {
+        curatorFramework.setData().forPath(nodePath, DistributeScheduleConstant.EMPTY_DATA);
+    }
+
+    /**
+     * 设置结点内容
+     * @param nodePath
+     * @param data
+     */
+    public void setDataToNode(String nodePath, byte[] data) throws Exception {
+        curatorFramework.setData().forPath(nodePath, data);
+
     }
 }

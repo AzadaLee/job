@@ -21,4 +21,9 @@ public class DistributeScheduleConstant {
      * 往zookeeper写id连接符
      */
     public static final String IDS_JOIN_CHARACTER = "-";
+
+    /**
+     * 空内容
+     */
+    public static final byte[] EMPTY_DATA = null;
 }

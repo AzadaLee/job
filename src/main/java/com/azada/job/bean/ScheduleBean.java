@@ -28,4 +28,9 @@ public class ScheduleBean {
      */
     private Class clazz;
 
+    /**
+     * 节点数据
+     */
+    private String nodeData;
+
 }

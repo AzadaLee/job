@@ -11,7 +11,7 @@ import java.util.Enumeration;
  */
 public class IpUtil {
 
-    static String LOCAL_IP;
+    public static String LOCAL_IP;
 
     static {
         LOCAL_IP = getLocalIP();

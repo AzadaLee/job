@@ -1,5 +1,6 @@
 package com.azada.job.event;
 
+import com.azada.job.bean.ScheduleBean;
 import lombok.Data;
 import org.springframework.context.ApplicationEvent;
 
@@ -10,10 +11,10 @@ import org.springframework.context.ApplicationEvent;
 @Data
 public class ScheduleImpNodeEmptyContentEvent extends ApplicationEvent {
 
-    private ScheduleImpNodeData scheduleImpNodeData;
+    private ScheduleBean scheduleBean;
 
-    public ScheduleImpNodeEmptyContentEvent(ScheduleImpNodeData scheduleImpNodeData) {
-        super(scheduleImpNodeData);
-        this.scheduleImpNodeData = scheduleImpNodeData;
+    public ScheduleImpNodeEmptyContentEvent(ScheduleBean scheduleBean) {
+        super(scheduleBean);
+        this.scheduleBean = scheduleBean;
     }
 }

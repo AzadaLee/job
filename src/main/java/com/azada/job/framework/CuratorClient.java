@@ -4,14 +4,13 @@ import com.azada.job.bean.ScheduleBean;
 import com.azada.job.config.TarsException;
 import com.azada.job.constant.DistributeScheduleConstant;
 import com.azada.job.event.*;
-import com.azada.job.util.NodePathUtil;
+import com.azada.job.util.ScheduleUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.NodeCache;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -22,10 +21,6 @@ import javax.annotation.Resource;
 @Slf4j
 public class CuratorClient {
 
-    private static final byte[] EMPTY_DATA = null;
-
-    @Value("${server.port}")
-    public Integer port;
 
     @Resource
     private CuratorFramework curatorFramework;
@@ -58,7 +53,7 @@ public class CuratorClient {
             String path = DistributeScheduleConstant.DIRECTORY_CHARACTER.concat(DistributeScheduleConstant.NODE_LOCK);
             Stat stat = curatorFramework.checkExists().forPath(path);
             if (null == stat) {
-                curatorFramework.create().withMode(CreateMode.PERSISTENT).forPath(path, EMPTY_DATA);//不设置初始值，defaultValue会变成ip
+                curatorFramework.create().withMode(CreateMode.PERSISTENT).forPath(path, DistributeScheduleConstant.EMPTY_DATA);//不设置初始值，defaultValue会变成ip
             }
         } catch (Exception e) {
             log.error("init bean node error :{}",e);
@@ -69,11 +64,11 @@ public class CuratorClient {
      * 创建具体业务节点
      */
     public void createScheduleServiceNode(ScheduleBean scheduleBean) throws Exception {
-        String scheduleServicePath = NodePathUtil.generateServiceNodePathName(scheduleBean);
+        String scheduleServicePath = ScheduleUtil.generateServiceNodePathName(scheduleBean);
         try {
             Stat stat = curatorFramework.checkExists().forPath(scheduleServicePath);//需要先判断节点是否存在，节点存在时，创建节点会抛NodeExists异常
             if (null == stat) {
-                curatorFramework.create().creatingParentContainersIfNeeded().withMode(CreateMode.PERSISTENT).forPath(scheduleServicePath, EMPTY_DATA);
+                curatorFramework.create().creatingParentContainersIfNeeded().withMode(CreateMode.PERSISTENT).forPath(scheduleServicePath, DistributeScheduleConstant.EMPTY_DATA);
             }
         } catch (Exception e) {
             if (!(e instanceof KeeperException.NodeExistsException)) {
@@ -92,9 +87,9 @@ public class CuratorClient {
      * @param scheduleBean
      */
     public void createScheduleServiceImpNode(ScheduleBean scheduleBean) throws Exception {
-        String scheduleServiceImpNodePath = NodePathUtil.generateServiceImplNodePathName(scheduleBean, port);
+        String scheduleServiceImpNodePath = ScheduleUtil.generateServiceImplNodePathName(scheduleBean);
         //模式必须为EPHEMERAL，应用节点停机后会自动删除节点
-        curatorFramework.create().creatingParentContainersIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(scheduleServiceImpNodePath, EMPTY_DATA);
+        curatorFramework.create().creatingParentContainersIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(scheduleServiceImpNodePath, DistributeScheduleConstant.EMPTY_DATA);
         //创建实例节点的监听
         createNodeListener(scheduleBean);
     }
@@ -104,20 +99,18 @@ public class CuratorClient {
      * @param scheduleBean
      */
     public void createNodeListener(ScheduleBean scheduleBean) throws Exception {
-        String scheduleServiceImpNodePath = NodePathUtil.generateServiceImplNodePathName(scheduleBean, port);
+        String scheduleServiceImpNodePath = ScheduleUtil.generateServiceImplNodePathName(scheduleBean);
         // 创建监听
         final NodeCache nodeCache = new NodeCache(curatorFramework, scheduleServiceImpNodePath, false);
         nodeCache.start(true);
         nodeCache.getListenable().addListener(() -> {
             String nodeData = new String(nodeCache.getCurrentData().getData());
-            ScheduleImpNodeData scheduleImpNodeData = new
-                    ScheduleImpNodeData(scheduleBean.getClazz(),scheduleBean.getClassFullName(),nodeData);
             if (!StringUtils.isEmpty(nodeData)) {
-                ScheduleImpNodeAddContentEvent event = new ScheduleImpNodeAddContentEvent(scheduleImpNodeData);
+                ScheduleImpNodeAddContentEvent event = new ScheduleImpNodeAddContentEvent(scheduleBean);
                 //发布节点内容设置值事件
                 scheduleImpNodeAddContentPublisher.publish(event);
             } else {
-                ScheduleImpNodeEmptyContentEvent event = new ScheduleImpNodeEmptyContentEvent(scheduleImpNodeData);
+                ScheduleImpNodeEmptyContentEvent event = new ScheduleImpNodeEmptyContentEvent(scheduleBean);
                 //发布实例结点内容被清空事件
                 scheduleImpNodeEmptyContentPublisher.publish(event);
             }
