@@ -1,4 +1,4 @@
-package com.azada.job.listener;
+package com.azada.job.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

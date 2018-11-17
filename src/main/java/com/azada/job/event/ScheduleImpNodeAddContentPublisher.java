@@ -1,16 +1,16 @@
-package com.azada.job.listener;
+package com.azada.job.event;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Component;
 
 /**
- * 定时任务实例发布
+ * 定时任务实例结点增加内容发布器
  *
  * @author taoxiuma
  */
 @Component
-public class ScheduleImpNodePublisher implements ApplicationEventPublisherAware {
+public class ScheduleImpNodeAddContentPublisher implements ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher applicationEventPublisher;
 
@@ -19,7 +19,7 @@ public class ScheduleImpNodePublisher implements ApplicationEventPublisherAware 
         this.applicationEventPublisher = applicationEventPublisher;
     }
 
-    public void publish(ScheduleImpNodeEvent event) {
+    public void publish(ScheduleImpNodeAddContentEvent event) {
         applicationEventPublisher.publishEvent(event);
     }
 }

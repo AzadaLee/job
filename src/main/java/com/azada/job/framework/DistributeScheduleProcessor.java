@@ -4,6 +4,7 @@ import com.azada.job.annotation.DistributeSchedule;
 import com.azada.job.bean.ScheduleBean;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -27,7 +28,11 @@ public class DistributeScheduleProcessor implements BeanPostProcessor {
             String classFullName = bean.getClass().getTypeName();
             Class clazz = bean.getClass();
             ScheduleBean scheduleBean = new ScheduleBean(serviceModuleName, classFullName, clazz);
-            curatorClient.createScheduleServiceNode(scheduleBean);
+            try {
+                curatorClient.createScheduleServiceNode(scheduleBean);
+            } catch (Exception e) {
+                throw new ApplicationContextException(e.getLocalizedMessage(), e);
+            }
         }
         return bean;
     }

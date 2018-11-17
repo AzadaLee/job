@@ -1,4 +1,4 @@
-package com.azada.job.listener;
+package com.azada.job.event;
 
 import com.azada.job.config.TarsException;
 import com.azada.job.schedule.ISchedule;
@@ -10,19 +10,19 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 
 /**
- * 定时任务实例监听
+ * 定时任务实例结点增加内容监听器
  *
  * @author taoxiuma
  */
 @Component
 @Slf4j
-public class ScheduleImpNodeListener implements ApplicationListener<ScheduleImpNodeEvent> {
+public class ScheduleImpNodeAddContentListener implements ApplicationListener<ScheduleImpNodeAddContentEvent> {
 
     @Resource
     private ApplicationContextUtil applicationContextUtil;
 
     @Override
-    public void onApplicationEvent(ScheduleImpNodeEvent event) {
+    public void onApplicationEvent(ScheduleImpNodeAddContentEvent event) {
         Object o = applicationContextUtil.getBeanByClazz(event.getScheduleImpNodeData().getClazz());
         if (null == o) {
             log.error("{} bean is not found", event.getScheduleImpNodeData().getClassFullName());

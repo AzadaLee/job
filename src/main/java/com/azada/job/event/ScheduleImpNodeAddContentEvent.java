@@ -1,4 +1,4 @@
-package com.azada.job.listener;
+package com.azada.job.event;
 
 import lombok.Data;
 import org.springframework.context.ApplicationEvent;
@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationEvent;
  * @author taoxiuma
  */
 @Data
-public class ScheduleImpNodeEvent extends ApplicationEvent {
+public class ScheduleImpNodeAddContentEvent extends ApplicationEvent {
 
 
     private ScheduleImpNodeData scheduleImpNodeData;
@@ -18,7 +18,7 @@ public class ScheduleImpNodeEvent extends ApplicationEvent {
      *
      * @param scheduleImpNodeData the object on which the event initially occurred (never {@code null})
      */
-    public ScheduleImpNodeEvent(ScheduleImpNodeData scheduleImpNodeData) {
+    public ScheduleImpNodeAddContentEvent(ScheduleImpNodeData scheduleImpNodeData) {
         super(scheduleImpNodeData);
         this.scheduleImpNodeData = scheduleImpNodeData;
     }
