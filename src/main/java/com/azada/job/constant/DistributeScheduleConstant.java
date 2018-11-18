@@ -26,4 +26,14 @@ public class DistributeScheduleConstant {
      * 空内容
      */
     public static final byte[] EMPTY_DATA = null;
+
+    /**
+     * 定时任务开关属性名
+     */
+    public static final String SCHEDULE_SWITCHER_FIELD = "switcher";
+
+    /**
+     * 定时任务开关默认值
+     */
+    public static final String SCHEDULE_SWITCHER_DEFAULT_VALUE = "ON";
 }

@@ -1,9 +1,13 @@
 package com.azada.job.schedule;
 
+import com.azada.job.constant.DistributeScheduleConstant;
+
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public interface IDistributeSchedule {
+
+    String switcher = DistributeScheduleConstant.SCHEDULE_SWITCHER_DEFAULT_VALUE;
 
     /**
      * 开始任务
