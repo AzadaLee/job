@@ -6,8 +6,6 @@ import com.azada.job.config.TarsException;
 import com.azada.job.constant.DistributeScheduleConstant;
 import com.azada.job.framework.DistributeScheduleCuratorComponent;
 import com.azada.job.util.CuratorFrameworkUtils;
-import com.azada.job.util.IpUtil;
-import com.azada.job.util.NodePathUtil;
 import com.azada.job.util.ScheduleUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -68,7 +66,7 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
             return;
         }
         List<Integer> idCountsList = ScheduleUtil.average(idList.size(), subNodes.size());
-        writeDataToNode(subNodes, idList, idCountsList, scheduleBean);
+        writeDataToNode(subNodes, idList, idCountsList, scheduleNodePathName);
     }
 
     /**
@@ -76,18 +74,21 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
      * @param scheduleChildrenNodePathList
      * @param sortedIdList
      * @param idCountsList
-     * @param scheduleBean
+     * @param scheduleNodePathName
      */
     private void writeDataToNode(List<String> scheduleChildrenNodePathList, List<Long> sortedIdList,
-                                   List<Integer> idCountsList, ScheduleBean scheduleBean) {
+                                   List<Integer> idCountsList, String scheduleNodePathName) {
         int start = 0;
         int length;
+        String impNodePath;
         for (int i = 0; i < scheduleChildrenNodePathList.size(); i++) {
+            String impName = scheduleChildrenNodePathList.get(i);
             length = idCountsList.get(i);
+            impNodePath = scheduleNodePathName.concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(impName);
             List<Long> dataList = sortedIdList.stream().skip(start).limit(length).collect(Collectors.toList());
             Long minId = dataList.stream().min(Long :: compareTo).orElse(0L);
             Long maxId = dataList.stream().max(Long :: compareTo).orElse(0L);
-            distributeScheduleCuratorComponent.writeData2CurrentScheduleImplNodeGuaranteed(scheduleBean, minId + DistributeScheduleConstant.IDS_JOIN_CHARACTER + maxId);
+            distributeScheduleCuratorComponent.writeData2ScheduleImplNodeGuaranteed(impNodePath, minId + DistributeScheduleConstant.IDS_JOIN_CHARACTER + maxId);
             start = length;
         }
     }

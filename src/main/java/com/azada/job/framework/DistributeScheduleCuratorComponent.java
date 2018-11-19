@@ -3,7 +3,6 @@ package com.azada.job.framework;
 import com.azada.job.bean.ScheduleBean;
 import com.azada.job.constant.DistributeScheduleConstant;
 import com.azada.job.util.CuratorFrameworkUtils;
-import com.azada.job.util.NodePathUtil;
 import com.azada.job.util.ScheduleUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.KeeperException;
@@ -146,12 +145,11 @@ public class DistributeScheduleCuratorComponent {
 
     /**
      * 异步（应用如果开启支持异步）并且在结点存在的情况下，一定将数据写到结点内容中去
-     * @param scheduleBean
+     * @param scheduleImplNodePathName
      * @param data
      */
     @Async
-    public void writeData2CurrentScheduleImplNodeGuaranteed(ScheduleBean scheduleBean, String data) {
-        String scheduleImplNodePathName = ScheduleUtil.generateServiceImplNodePathName(scheduleBean);
+    public void writeData2ScheduleImplNodeGuaranteed(String scheduleImplNodePathName, String data) {
         while (true) {
             try {
                 curatorFrameworkUtils.setDataToNode(scheduleImplNodePathName,data.getBytes());
@@ -161,7 +159,6 @@ public class DistributeScheduleCuratorComponent {
                     break;
                 }
             }
-
         }
     }
 }
