@@ -6,6 +6,9 @@ import com.azada.job.constant.DistributeScheduleConstant;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author taoxiuma
+ */
 public class ScheduleUtil {
 
 

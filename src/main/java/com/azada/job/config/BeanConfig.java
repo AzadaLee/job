@@ -9,6 +9,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * @author taoxiuma
+ */
 @Configuration
 public class BeanConfig {
 
@@ -19,7 +22,7 @@ public class BeanConfig {
      * application name
      */
     @Value("${spring.application.name}")
-    private String NAMESPACE;
+    private String nameSpace;
 
     @Bean
     @ConditionalOnProperty("curator.zookeeper.address")
@@ -30,7 +33,7 @@ public class BeanConfig {
                 .sessionTimeoutMs(5000)
                 .connectionTimeoutMs(5000)
                 .retryPolicy(retryPolicy)
-                .namespace(NAMESPACE)
+                .namespace(nameSpace)
                 .build();
         if (null == client) {
             throw new TarsException("init curator connection error");

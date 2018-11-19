@@ -1,5 +1,8 @@
 package com.azada.job.constant;
 
+/**
+ * @author taoxiuma
+ */
 public class DistributeScheduleConstant {
 
     /**
@@ -30,7 +33,7 @@ public class DistributeScheduleConstant {
     /**
      * 定时任务开关属性名
      */
-    public static final String SCHEDULE_SWITCHER_FIELD = "switcher";
+    public static final String SCHEDULE_SWITCHER_FIELD = "SWITCHER";
 
     /**
      * 定时任务开关默认值

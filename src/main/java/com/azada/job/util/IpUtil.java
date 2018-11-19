@@ -11,6 +11,19 @@ import java.util.Enumeration;
  */
 public class IpUtil {
 
+    /**
+     * 系统属性
+     */
+    private static final String PROPERTY_OS_NAME = "os.name";
+
+    /**
+     * 操作系统-windows
+     */
+    private static final String SYSTEM_WINDOWS = "windows";
+
+    /**
+     * 本地ip
+     */
     public static String LOCAL_IP;
 
     static {
@@ -24,8 +37,8 @@ public class IpUtil {
      */
     public static boolean isWindowsOS(){
         boolean isWindowsOS = false;
-        String osName = System.getProperty("os.name");
-        if(osName.toLowerCase().indexOf("windows")>-1){
+        String osName = System.getProperty(PROPERTY_OS_NAME);
+        if(osName.toLowerCase().indexOf(SYSTEM_WINDOWS)>-1){
             isWindowsOS = true;
         }
         return isWindowsOS;
@@ -70,7 +83,6 @@ public class IpUtil {
             }
         }
         catch (Exception e) {
-            //e.printStackTrace();
         }
 
         if(null != ip){

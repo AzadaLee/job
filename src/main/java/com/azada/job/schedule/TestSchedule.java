@@ -7,6 +7,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @author taoxiuma
+ */
 @DistributeSchedule
 @Slf4j
 public class TestSchedule extends BaseDistributeSchedule {

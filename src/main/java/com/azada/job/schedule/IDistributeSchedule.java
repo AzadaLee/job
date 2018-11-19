@@ -5,10 +5,14 @@ import com.azada.job.constant.DistributeScheduleConstant;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+/**
+ * @author taoxiuma
+ */
 public interface IDistributeSchedule {
 
-    String switcher = DistributeScheduleConstant.SCHEDULE_SWITCHER_DEFAULT_VALUE;
+    String SWITCHER = DistributeScheduleConstant.SCHEDULE_SWITCHER_DEFAULT_VALUE;
 
+    Integer LEGAL_IDS_SIZE = 2;
     /**
      * 开始任务
      */
@@ -21,8 +25,9 @@ public interface IDistributeSchedule {
     List<Long> getIdList();
 
     /**
-     * 执行具体业务
-     * @param
+     * 执行业务
+     * @param minId
+     * @param maxId
      */
     void doBusiness(Long minId, Long maxId);
 

@@ -17,6 +17,9 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+/**
+ * @author taoxiuma
+ */
 @Component
 @Slf4j
 public class CuratorClient {
@@ -53,7 +56,8 @@ public class CuratorClient {
             String path = DistributeScheduleConstant.DIRECTORY_CHARACTER.concat(DistributeScheduleConstant.NODE_LOCK);
             Stat stat = curatorFramework.checkExists().forPath(path);
             if (null == stat) {
-                curatorFramework.create().withMode(CreateMode.PERSISTENT).forPath(path, DistributeScheduleConstant.EMPTY_DATA);//不设置初始值，defaultValue会变成ip
+                //不设置初始值，defaultValue会变成ip
+                curatorFramework.create().withMode(CreateMode.PERSISTENT).forPath(path, DistributeScheduleConstant.EMPTY_DATA);
             }
         } catch (Exception e) {
             log.error("init bean node error :{}",e);
@@ -66,7 +70,8 @@ public class CuratorClient {
     public void createScheduleServiceNode(ScheduleBean scheduleBean) throws Exception {
         String scheduleServicePath = ScheduleUtil.generateServiceNodePathName(scheduleBean);
         try {
-            Stat stat = curatorFramework.checkExists().forPath(scheduleServicePath);//需要先判断节点是否存在，节点存在时，创建节点会抛NodeExists异常
+            //需要先判断节点是否存在，节点存在时，创建节点会抛NodeExists异常
+            Stat stat = curatorFramework.checkExists().forPath(scheduleServicePath);
             if (null == stat) {
                 curatorFramework.create().creatingParentContainersIfNeeded().withMode(CreateMode.PERSISTENT).forPath(scheduleServicePath, DistributeScheduleConstant.EMPTY_DATA);
             }

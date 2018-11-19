@@ -12,6 +12,9 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.util.List;
 
+/**
+ * @author taoxiuma
+ */
 @Component
 @Slf4j
 public class CuratorFrameworkUtils {
@@ -49,7 +52,7 @@ public class CuratorFrameworkUtils {
      * @param nodePath
      */
     private void isLegalPath(String nodePath) {
-        if (StringUtils.isEmpty(nodePath) || !nodePath.startsWith("/")) {
+        if (StringUtils.isEmpty(nodePath) || !nodePath.startsWith(DistributeScheduleConstant.DIRECTORY_CHARACTER)) {
             throw new TarsException("node path can not be null and must start with '/'");
         }
     }

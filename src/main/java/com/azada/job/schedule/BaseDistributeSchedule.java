@@ -114,7 +114,7 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
                 return;
             }
             List<String> idArr = Arrays.asList(ids.split(DistributeScheduleConstant.IDS_JOIN_CHARACTER));
-            if (idArr.size() != 2) {
+            if (idArr.size() != LEGAL_IDS_SIZE) {
                 log.info("schedule {} ids：{} is not a legal ids data. ", this.getClass().getTypeName(), ids);
                 return;
             }

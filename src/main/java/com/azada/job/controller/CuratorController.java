@@ -1,6 +1,7 @@
 package com.azada.job.controller;
 
 import com.azada.job.config.TarsException;
+import com.azada.job.constant.DistributeScheduleConstant;
 import com.azada.job.controller.dto.NodeDataGetByNodePathReqDTO;
 import com.azada.job.controller.dto.ResponseDTO;
 import com.azada.job.util.CuratorFrameworkUtils;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
+/**
+ * @author taoxiuma
+ */
 @RestController
 @RequestMapping("/curator")
 public class CuratorController {
@@ -25,7 +29,7 @@ public class CuratorController {
         if (StringUtils.isEmpty(nodePath)) {
             throw new TarsException("节点路劲不能为空");
         }
-        if (!nodePath.startsWith("/")) {
+        if (!nodePath.startsWith(DistributeScheduleConstant.DIRECTORY_CHARACTER)) {
             throw new TarsException("节点路劲必须以'/'开头");
         }
         return ResponseDTO.success(curatorFrameworkUtils.getNodeData(nodePath));

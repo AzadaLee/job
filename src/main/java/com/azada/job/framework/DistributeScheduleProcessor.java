@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
 
+/**
+ * @author taoxiuma
+ */
 @Component
 public class DistributeScheduleProcessor implements BeanPostProcessor {
 
