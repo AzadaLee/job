@@ -16,4 +16,9 @@ public @interface DistributeSchedule {
 
     String value() default DistributeScheduleConstant.NODE_SCHEDULE;
 
+    /**
+     * 是否是单点执行
+     * @return
+     */
+    boolean singleNode() default false;
 }

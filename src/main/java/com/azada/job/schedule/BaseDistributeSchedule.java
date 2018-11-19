@@ -37,6 +37,7 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
             throw new TarsException("distribute schedule must annotate by @DistributeSchedule");
         }
         String serviceModuleName = annotation.value();
+        boolean singleNode = annotation.singleNode();
         String classFullName = this.getClass().getTypeName();
         Class clazz = this.getClass();
         ScheduleBean scheduleBean = new ScheduleBean(serviceModuleName, classFullName, clazz, null);
@@ -66,7 +67,7 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
             return;
         }
         List<Integer> idCountsList = ScheduleUtil.average(idList.size(), subNodes.size());
-        writeDataToNode(subNodes, idList, idCountsList, scheduleNodePathName);
+        writeDataToNode(subNodes, idList, idCountsList, scheduleNodePathName, singleNode);
     }
 
     /**
@@ -75,24 +76,37 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
      * @param sortedIdList
      * @param idCountsList
      * @param scheduleNodePathName
+     * @param singleNode 是否是单节点执行
      */
     private void writeDataToNode(List<String> scheduleChildrenNodePathList, List<Long> sortedIdList,
-                                   List<Integer> idCountsList, String scheduleNodePathName) {
+                                   List<Integer> idCountsList, String scheduleNodePathName, boolean singleNode) {
         int start = 0;
         int length;
         String impNodePath;
         for (int i = 0; i < scheduleChildrenNodePathList.size(); i++) {
             String impName = scheduleChildrenNodePathList.get(i);
-            length = idCountsList.get(i);
-            impNodePath = scheduleNodePathName.concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(impName);
-            List<Long> dataList = sortedIdList.stream().skip(start).limit(length).collect(Collectors.toList());
-            Long minId = dataList.stream().min(Long :: compareTo).orElse(0L);
-            Long maxId = dataList.stream().max(Long :: compareTo).orElse(0L);
-            distributeScheduleCuratorComponent.writeData2ScheduleImplNodeGuaranteed(impNodePath, minId + DistributeScheduleConstant.IDS_JOIN_CHARACTER + maxId);
-            start = length;
+            if (singleNode) {
+                //单节点只所有数据写向一个节点
+                length = sortedIdList.size();
+                impNodePath = scheduleNodePathName.concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(impName);
+                List<Long> dataList = sortedIdList.stream().skip(start).limit(length).collect(Collectors.toList());
+                Long minId = dataList.stream().min(Long :: compareTo).orElse(0L);
+                Long maxId = dataList.stream().max(Long :: compareTo).orElse(0L);
+                distributeScheduleCuratorComponent.writeData2ScheduleImplNodeGuaranteed(impNodePath, minId + DistributeScheduleConstant.IDS_JOIN_CHARACTER + maxId);
+                break;
+            } else {
+                length = idCountsList.get(i);
+                impNodePath = scheduleNodePathName.concat(DistributeScheduleConstant.DIRECTORY_CHARACTER).concat(impName);
+                List<Long> dataList = sortedIdList.stream().skip(start).limit(length).collect(Collectors.toList());
+                Long minId = dataList.stream().min(Long :: compareTo).orElse(0L);
+                Long maxId = dataList.stream().max(Long :: compareTo).orElse(0L);
+                distributeScheduleCuratorComponent.writeData2ScheduleImplNodeGuaranteed(impNodePath, minId + DistributeScheduleConstant.IDS_JOIN_CHARACTER + maxId);
+                start = length;
+            }
         }
     }
 
+    @Override
     public void process(@NotNull String ids) {
         try {
             if (StringUtils.isEmpty(ids) || ids.indexOf(DistributeScheduleConstant.IDS_JOIN_CHARACTER) < 0) {
