@@ -28,7 +28,6 @@ public class TestSchedule extends BaseDistributeSchedule {
     @Override
     public void doBusiness(Long minId, Long maxId) {
         log.info("minId:{}, maxId:{}", minId, maxId);
-
     }
 
 }

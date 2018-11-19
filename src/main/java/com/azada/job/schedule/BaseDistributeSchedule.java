@@ -82,9 +82,7 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
                                    List<Integer> idCountsList, ScheduleBean scheduleBean) {
         int start = 0;
         int length;
-        String impNodePath;
         for (int i = 0; i < scheduleChildrenNodePathList.size(); i++) {
-            String impName = scheduleChildrenNodePathList.get(i);
             length = idCountsList.get(i);
             List<Long> dataList = sortedIdList.stream().skip(start).limit(length).collect(Collectors.toList());
             Long minId = dataList.stream().min(Long :: compareTo).orElse(0L);
@@ -95,18 +93,18 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
     }
 
     public void process(@NotNull String ids) {
-        if (StringUtils.isEmpty(ids) || ids.indexOf(DistributeScheduleConstant.IDS_JOIN_CHARACTER) < 0) {
-            log.info("schedule {} ids：{} is null or is not a legal ids data. ", this.getClass().getTypeName(), ids);
-            return;
-        }
-        List<String> idArr = Arrays.asList(ids.split(DistributeScheduleConstant.IDS_JOIN_CHARACTER));
-        if (idArr.size() != 2) {
-            log.info("schedule {} ids：{} is not a legal ids data. ", this.getClass().getTypeName(), ids);
-            return;
-        }
-        Long minId = Long.valueOf(idArr.get(0));
-        Long maxId = Long.valueOf(idArr.get(1));
         try {
+            if (StringUtils.isEmpty(ids) || ids.indexOf(DistributeScheduleConstant.IDS_JOIN_CHARACTER) < 0) {
+                log.info("schedule {} ids：{} is null or is not a legal ids data. ", this.getClass().getTypeName(), ids);
+                return;
+            }
+            List<String> idArr = Arrays.asList(ids.split(DistributeScheduleConstant.IDS_JOIN_CHARACTER));
+            if (idArr.size() != 2) {
+                log.info("schedule {} ids：{} is not a legal ids data. ", this.getClass().getTypeName(), ids);
+                return;
+            }
+            Long minId = Long.valueOf(idArr.get(0));
+            Long maxId = Long.valueOf(idArr.get(1));
             this.doBusiness(minId, maxId);
         } finally {
             DistributeSchedule annotation = this.getClass().getAnnotation(DistributeSchedule.class);

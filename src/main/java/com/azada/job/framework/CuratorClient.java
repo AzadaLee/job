@@ -104,8 +104,10 @@ public class CuratorClient {
         final NodeCache nodeCache = new NodeCache(curatorFramework, scheduleServiceImpNodePath, false);
         nodeCache.start(true);
         nodeCache.getListenable().addListener(() -> {
-            String nodeData = new String(nodeCache.getCurrentData().getData());
-            if (!StringUtils.isEmpty(nodeData)) {
+            byte[] b = nodeCache.getCurrentData().getData();
+            if (null != b && b.length > 0) {
+                String nodeData = new String(b);
+                scheduleBean.setNodeData(nodeData);
                 ScheduleImpNodeAddContentEvent event = new ScheduleImpNodeAddContentEvent(scheduleBean);
                 //发布节点内容设置值事件
                 scheduleImpNodeAddContentPublisher.publish(event);
