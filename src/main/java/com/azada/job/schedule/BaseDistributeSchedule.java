@@ -32,6 +32,9 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
     private DistributeScheduleCuratorComponent distributeScheduleCuratorComponent;
 
     protected void init() {
+        if (!this.SWITCHER.equalsIgnoreCase(DistributeScheduleConstant.SCHEDULE_SWITCHER_DEFAULT_VALUE)) {
+            return;
+        }
         DistributeSchedule annotation = this.getClass().getAnnotation(DistributeSchedule.class);
         if (null == annotation) {
             throw new TarsException("distribute schedule must annotate by @DistributeSchedule");
