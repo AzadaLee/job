@@ -10,8 +10,6 @@ import java.util.List;
  */
 public interface IDistributeSchedule {
 
-    String SWITCHER = DistributeScheduleConstant.SCHEDULE_SWITCHER_DEFAULT_VALUE;
-
     Integer LEGAL_IDS_SIZE = 2;
     /**
      * 开始任务

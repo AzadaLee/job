@@ -2,14 +2,13 @@ package com.azada.job.framework;
 
 import com.azada.job.annotation.DistributeSchedule;
 import com.azada.job.bean.ScheduleBean;
-import com.azada.job.constant.DistributeScheduleConstant;
+import org.apache.zookeeper.KeeperException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Field;
 
 /**
  * @author taoxiuma
@@ -30,24 +29,16 @@ public class DistributeScheduleProcessor implements BeanPostProcessor {
         DistributeSchedule annotation = bean.getClass().getAnnotation(DistributeSchedule.class);
         if (null != annotation) {
             //增加开关
+            String serviceModuleName = annotation.value();
+            String classFullName = bean.getClass().getTypeName();
+            Class clazz = bean.getClass();
+            ScheduleBean scheduleBean = new ScheduleBean(serviceModuleName, classFullName, clazz, null);
             try {
-                Field switcher = bean.getClass().getField(DistributeScheduleConstant.SCHEDULE_SWITCHER_FIELD);
-                switcher.setAccessible(true);
-                Object switcherValue = switcher.get(bean);
-                if (null != switcherValue && DistributeScheduleConstant.SCHEDULE_SWITCHER_DEFAULT_VALUE
-                        .equalsIgnoreCase(((String)switcherValue).trim())) {
-                    String serviceModuleName = annotation.value();
-                    String classFullName = bean.getClass().getTypeName();
-                    Class clazz = bean.getClass();
-                    ScheduleBean scheduleBean = new ScheduleBean(serviceModuleName, classFullName, clazz, null);
-                    try {
-                        curatorClient.createScheduleServiceNode(scheduleBean);
-                    } catch (Exception e) {
-                        throw new ApplicationContextException(e.getLocalizedMessage(), e);
-                    }
-                }
+                curatorClient.createScheduleServiceNode(scheduleBean);
             } catch (Exception e) {
-                return bean;
+                if (!(e instanceof KeeperException.NodeExistsException)) {
+                    throw new ApplicationContextException(e.getLocalizedMessage(), e);
+                }
             }
         }
         return bean;

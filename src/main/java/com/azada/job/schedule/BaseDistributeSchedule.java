@@ -32,9 +32,6 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
     private DistributeScheduleCuratorComponent distributeScheduleCuratorComponent;
 
     protected void init() {
-        if (!DistributeScheduleConstant.SCHEDULE_SWITCHER_DEFAULT_VALUE.equalsIgnoreCase(this.SWITCHER)) {
-            return;
-        }
         DistributeSchedule annotation = this.getClass().getAnnotation(DistributeSchedule.class);
         if (null == annotation) {
             throw new TarsException("distribute schedule must annotate by @DistributeSchedule");
@@ -44,6 +41,10 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
         String classFullName = this.getClass().getTypeName();
         Class clazz = this.getClass();
         ScheduleBean scheduleBean = new ScheduleBean(serviceModuleName, classFullName, clazz, null);
+        if (null != this.getSwitcher() && !DistributeScheduleConstant.SCHEDULE_SWITCHER_DEFAULT_VALUE.equalsIgnoreCase(this.getSwitcher().trim())) {
+            log.info("schedule {} switcher is off.", classFullName);
+            return;
+        }
         if (!distributeScheduleCuratorComponent.acquireLock(scheduleBean)) {
             //获取锁失败
             return;
@@ -132,5 +133,14 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
             ScheduleBean scheduleBean = new ScheduleBean(serviceModuleName, classFullName, clazz, null);
             distributeScheduleCuratorComponent.emptyCurrentScheduleImplNodeContentGuaranteed(scheduleBean);
         }
+    }
+
+    /**
+     * 任务开关方法
+     * 默认开启
+     * @return
+     */
+    protected String getSwitcher() {
+        return DistributeScheduleConstant.SCHEDULE_SWITCHER_DEFAULT_VALUE;
     }
 }
