@@ -13,7 +13,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * @author taoxiuma
@@ -21,6 +24,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties(CuratorProperties.class)
 @ConditionalOnBean(IDistributeSchedule.class)
+@ComponentScan(basePackageClasses = AzadaJobAutoConfiguration.class)
+@EnableScheduling
 public class AzadaJobAutoConfiguration {
 
     @Bean
