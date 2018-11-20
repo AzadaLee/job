@@ -32,7 +32,7 @@ public abstract class BaseDistributeSchedule implements IDistributeSchedule{
     private DistributeScheduleCuratorComponent distributeScheduleCuratorComponent;
 
     protected void init() {
-        if (!this.SWITCHER.equalsIgnoreCase(DistributeScheduleConstant.SCHEDULE_SWITCHER_DEFAULT_VALUE)) {
+        if (!DistributeScheduleConstant.SCHEDULE_SWITCHER_DEFAULT_VALUE.equalsIgnoreCase(this.SWITCHER)) {
             return;
         }
         DistributeSchedule annotation = this.getClass().getAnnotation(DistributeSchedule.class);
