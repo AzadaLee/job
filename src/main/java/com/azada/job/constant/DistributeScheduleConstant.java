@@ -39,4 +39,9 @@ public class DistributeScheduleConstant {
      * 定时任务开关默认值
      */
     public static final String SCHEDULE_SWITCHER_DEFAULT_VALUE = "ON";
+
+    /**
+     * 默认命名空间
+     */
+    public static final String DEFAULT_NAMESPACE = "DEFAULT";
 }

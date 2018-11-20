@@ -1,11 +1,17 @@
-package com.azada.job.config;
+package com.azada.job;
 
+import com.azada.job.config.CuratorProperties;
+import com.azada.job.config.TarsException;
+import com.azada.job.framework.CuratorClient;
+import com.azada.job.framework.DistributeScheduleProcessor;
+import com.azada.job.schedule.IDistributeSchedule;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,27 +19,20 @@ import org.springframework.context.annotation.Configuration;
  * @author taoxiuma
  */
 @Configuration
-public class BeanConfig {
-
-    @Value("${curator.zookeeper.address}")
-    private String address;
-
-    /**
-     * application name
-     */
-    @Value("${spring.application.name}")
-    private String nameSpace;
+@EnableConfigurationProperties(CuratorProperties.class)
+@ConditionalOnBean(IDistributeSchedule.class)
+public class AzadaJobAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty("curator.zookeeper.address")
-    public CuratorFramework curatorFramework () {
+    public CuratorFramework curatorFramework (CuratorProperties curatorProperties) {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         CuratorFramework client = CuratorFrameworkFactory.builder()
-                .connectString(address)
+                .connectString(curatorProperties.getAddress())
                 .sessionTimeoutMs(5000)
                 .connectionTimeoutMs(5000)
                 .retryPolicy(retryPolicy)
-                .namespace(nameSpace)
+                .namespace(curatorProperties.getNameSpace())
                 .build();
         if (null == client) {
             throw new TarsException("init curator connection error");
